@@ -69,9 +69,9 @@ async function tablesAndStatistics(states: States[]): Promise<void> {
       let sumOfCitizens = 0;
       states.forEach((state) => sumOfCitizens += state.population);
       statisticsContainer.append($('<h4 class="moreDataHeader">More Data:</h4>'));
-      statisticsContainer.append(`<li>Total states result: ${states.length}</li>`);
-      statisticsContainer.append(`<li>Sum of citizens count${sumOfCitizens}</li>`);
-      statisticsContainer.append(`<li>Average of citizens count${Math.floor(sumOfCitizens / states.length)}</li>`);
+      statisticsContainer.append(`<li><strong>Total states result:</strong> ${states.length}</li>`);
+      statisticsContainer.append(`<li><strong>Sum of citizens count:</strong> ${sumOfCitizens}</li>`);
+      statisticsContainer.append(`<li><strong>Average of citizens count:</strong> ${Math.floor(sumOfCitizens / states.length)}</li>`);
     }
 
   function getCurrencies(states: States[]): Counter {

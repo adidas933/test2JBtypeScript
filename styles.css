@@ -8,6 +8,7 @@ body {
 .mainHeading {
   text-align: center;
   color: blanchedalmond;
+  margin-bottom: 30px;
 }
 
 .form {
@@ -20,4 +21,15 @@ body {
 
 .moreDataHeader, .statesCurrenciesHeading {
   color: blanchedalmond;
+}
+
+.getStateBtn, .allStatesBtn {
+  border-radius: 5px;
+  background-color: burlywood;
+  transition: all ease 0.3s;
+  border: none;
+}
+
+.getStateBtn:hover, .allStatesBtn:hover {
+  background-color: antiquewhite;
 }
