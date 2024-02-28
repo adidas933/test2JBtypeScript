@@ -1,0 +1,23 @@
+body {
+  background-color: rgb(52, 52, 52);
+  color: lightgrey;
+  margin: 10px;
+  padding: 10px;
+}
+
+.mainHeading {
+  text-align: center;
+  color: blanchedalmond;
+}
+
+.form {
+  text-align: center;
+}
+
+.statisticsContainer {
+  list-style: none;
+}
+
+.moreDataHeader, .statesCurrenciesHeading {
+  color: blanchedalmond;
+}
