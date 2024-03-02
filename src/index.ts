@@ -30,60 +30,73 @@ class States {
       this.numOfStates = numOfStates;
   }
 }
+
 class Counter { [key: string]: number };
+
 // Variables:
 const statisticsContainer = $('.statisticsContainer');
+const thead = $('thead');
+const tbody = $('tbody');
+const getStateBtn = $('.getStateBtn');
+const allStatesBtn = $('.allStatesBtn');
+
 // Functions:
-async function tablesAndStatistics(states: States[]): Promise<void> {
+async function tableCitizens(states: States[]): Promise<void> {
+  thead.append(`<th>State Name</th><th>Citizens</th>`);
   const mainData = populationData(states);
+  mainData.forEach((state) => createRow('name', 'population', state));
+}
+
+async function tableRegion(states: States[]): Promise<void> {
+  tbody.append(`<th>Region</th><th>Number Of States</th>`);
   const getRegionData = await regionData(states);
-  $('thead').append(`<th>State Name</th><th>Citizens</th>`);
-  mainData.forEach((state) => createRow('name', 'population', 'statesTable', state));
-  $('tbody').append(`<th>Region</th><th>Number Of States</th>`);
-  getRegionData.forEach((state) => createRow('region', 'numOfStates', 'statesTable', state));
-  const currencyCounters = getCurrencies(states);
-  Object.keys(currencyCounters).forEach((key) => statisticsContainer.append(`<li><strong>${key}</strong> ${currencyCounters[key]} state/s use this currency</li>`));
-  getOtherData(states);
-  }
+  getRegionData.forEach((state) => createRow('region', 'numOfStates', state));
+}
 
-  function populationData(states: States[]): States[] {
-    return states.map((state) => ({
-      name: new StateNames(state.name.official),
-      population: state.population,
-      region: '',
-      currencies: new Currencies('', ''),
-      numOfStates: 0
-    }))}
+function populationData(states: States[]): States[] {
+  return states.map((state) => ({
+    name: new StateNames(state.name.official),
+    population: state.population,
+    region: '',
+    currencies: new Currencies('', ''),
+    numOfStates: 0
+  }))}
 
-  async function regionData(states: States[]): Promise<States[]> {
-    return await Promise.all(
-      states.map(async (state) => ({
-        name: new StateNames(''),
-        population: 0,
-        currencies:new Currencies('', ''),
-        region: state.region,
-        numOfStates: (await getRegionStates(state.region)).length,
-      })))};
+async function regionData(states: States[]): Promise<States[]> {
+  return await Promise.all(
+    states.map(async (state) => ({
+      name: new StateNames(''),
+      population: 0,
+      currencies:new Currencies('', ''),
+      region: state.region,
+      numOfStates: (await getRegionStates(state.region)).length,
+    })))};
 
-    function getOtherData(states: States[]): void {
-      let sumOfCitizens = 0;
-      states.forEach((state) => sumOfCitizens += state.population);
-      statisticsContainer.append($('<h4 class="moreDataHeader">More Data:</h4>'));
-      statisticsContainer.append(`<li><strong>Total states result:</strong> ${states.length}</li>`);
-      statisticsContainer.append(`<li><strong>Sum of citizens count:</strong> ${sumOfCitizens}</li>`);
-      statisticsContainer.append(`<li><strong>Average of citizens count:</strong> ${Math.floor(sumOfCitizens / states.length)}</li>`);
-    }
+function sumOfStatesFound (states: States[]): void {
+  statisticsContainer.append('<h4 class="moreDataHeader">More Data:</h4>');
+  statisticsContainer.append(`<li><strong>Total states result:</strong> ${states.length}</li>`);
+}
 
-  function getCurrencies(states: States[]): Counter {
-    const currencyTypeCounters: Counter = {};
-    statisticsContainer.append($('<h4 class="statesCurrenciesHeading">States Currencies</h4>'));
-    states.forEach((state: States) => {
-      if (!state.currencies) 
-        return currencyTypeCounters['No currency'] = (currencyTypeCounters['No currency'] || 0) + 1;
-      let keys = Object.keys(state.currencies);
-      keys.forEach((key) => currencyTypeCounters[key] = (currencyTypeCounters[key] || 0) + 1)});
-      return currencyTypeCounters;
-  }
+function sumOfCitizensFound (states: States[]): number {
+  let sumOfCitizens = 0;
+  states.forEach((state) => sumOfCitizens += state.population);
+  statisticsContainer.append(`<li><strong>Sum of citizens count:</strong> ${sumOfCitizens}</li>`);
+  return sumOfCitizens;
+}
+
+function averageOfCitizens (states: States[], sumOfCitizens: number): void {
+  statisticsContainer.append(`<li><strong>Average of citizens count:</strong> ${Math.floor(sumOfCitizens / states.length)}</li>`);
+}
+
+function getCurrencies(states: States[]): void {
+  statisticsContainer.append($('<h4 class="statesCurrenciesHeading">States Currencies</h4>'));
+  const currencyTypeCounters: Counter = {};
+  states.forEach((state: States) => {
+    if (!state.currencies) 
+      return currencyTypeCounters['No currency'] = (currencyTypeCounters['No currency'] || 0) + 1;
+    Object.keys(state.currencies).forEach((key) => currencyTypeCounters[key] = (currencyTypeCounters[key] || 0) + 1)});
+    Object.keys(currencyTypeCounters).forEach((key) => statisticsContainer.append(`<li><strong>${key}</strong> ${currencyTypeCounters[key]} state/s use this currency</li>`));
+}
 
   async function getRegionStates(region: string): Promise<States[]> {
     const response = await fetch(
@@ -95,7 +108,6 @@ async function tablesAndStatistics(states: States[]): Promise<void> {
   function createRow(
     nameOrRegion: string,
     populationOrStates: string,
-    tableClass: string,
     data: States
     ): void {
     const tr = $('<tr>');
@@ -103,7 +115,7 @@ async function tablesAndStatistics(states: States[]): Promise<void> {
     const populationOrStatesValue = populationOrStates === 'population' ? data.population : data.numOfStates;
     const tdName = $(`<td>${nameValue.toString()}</td>`);
     tr.append(tdName, $('<td>').text(populationOrStatesValue.toString()));
-    $(`.${tableClass} tbody`).append(tr);
+    tbody.append(tr);
   }
 
   async function getStates(input: string): Promise<void> {
@@ -111,13 +123,19 @@ async function tablesAndStatistics(states: States[]): Promise<void> {
       `https://restcountries.com/v3.1/${input}`
     );
     const states: States[] = await response.json();
-    tablesAndStatistics(states);
+    tableCitizens(states);
+    tableRegion(states);
+    getCurrencies(states);
+    sumOfStatesFound(states);
+    const sumOfCitizens = sumOfCitizensFound(states);
+    averageOfCitizens(states, sumOfCitizens);
   }
+
 // Event listeners:
-  $('.getStateBtn')?.on('click', function () {
+  getStateBtn?.on('click', function () {
     getStates(`name/${$('.searchStateInput').val()}`);
   });
 
-  $('.allStatesBtn')?.on('click', function () {
+  allStatesBtn?.on('click', function () {
     getStates('all');
   })

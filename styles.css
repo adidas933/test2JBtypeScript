@@ -21,6 +21,7 @@ body {
 
 .moreDataHeader, .statesCurrenciesHeading {
   color: blanchedalmond;
+  margin: 20px 0;
 }
 
 .getStateBtn, .allStatesBtn {
